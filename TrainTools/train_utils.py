@@ -61,3 +61,4 @@ def save_checkpoint(save_dir, ckpt_name, model, optimizer, scheduler,
         "config":          config,
     }
     torch.save(payload, os.path.join(save_dir, ckpt_name))
+

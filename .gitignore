@@ -18,87 +18,6 @@ eggs/
 lib/
 lib64/
 parts/
-bin/
-var/
-sdist/
-develop/
-.rpm
-installed.cfg
-lib64
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*,cover
-.hypothesis/
-
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
-*.log
-local_settings.py
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# celery beat schedule file
-celerybeat-schedule
-
-# SageMath parsed files
-*.sage.py
-
-# dotenv
-.env
-
-# virtualenv
-.venv
-venv/
-ENV/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-
-# Project specific
-_model/
-_data/
-_log/
 sdist/
 var/
 wheels/
@@ -183,7 +102,13 @@ ENV/
 
 .idea/
 .vscode/
+data/
+_data/
 tmp/
+log/
+model/
+_model/
+_log/
 mini_data.zip
 
 # Instructor-only grading materials

@@ -22,6 +22,9 @@ class StepLR(LRScheduler):
     def get_lr(self):
         t = self.last_epoch
         return [
-            base_lr * self.gamma * (t // self.step_size)
+            ### Changed
+            base_lr * self.gamma ** (t // self.step_size)
             for base_lr in self.base_lrs
         ]
+
+

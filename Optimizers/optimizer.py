@@ -13,9 +13,10 @@ from Optimizers.sgd_momentum import SGDMomentum
 def adam(params, args):
     return Adam(
         params=params,
-        lr=1.0,
+        lr=args.learning_rate,    ### Changed
+        # lr=args.learning_rate,
         betas=(args.beta1, args.beta2),
-        eps=getattr(args, "eps", 1e-7),
+        eps=getattr(args, "eps", 1e-8),
         weight_decay=args.weight_decay,
     )
 

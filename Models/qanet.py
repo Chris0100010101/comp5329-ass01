@@ -8,7 +8,7 @@ from .embedding import Embedding
 from .encoder import EncoderBlock
 from .attention import CQAttention
 from .heads import Pointer
-
+import torch.nn.functional as F
 
 class QANet(nn.Module):
     """
@@ -88,5 +88,9 @@ class QANet(nn.Module):
         for enc in self.model_enc_blks:
             M3 = enc(M3, cmask)
 
-        p1, p2 = self.out(M1, M2, M3, cmask)
+
+        ### changed
+        p1_logits, p2_logits = self.out(M1, M2, M3, cmask)
+        p1 = F.log_softmax(p1_logits, dim=-1)
+        p2 = F.log_softmax(p2_logits, dim=-1)
         return p1, p2

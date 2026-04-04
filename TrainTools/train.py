@@ -46,7 +46,7 @@ def train(
     test_num_batches:   int   = 150,
     seed:               int   = 42,
     grad_clip:          float = 5.0,
-    early_stop:         int   = 10,
+    early_stop:         int   = 30,
 
     # ── DL technique selection (string registry keys) ─────────────────────────
     optimizer_name:     str   = "adam",
