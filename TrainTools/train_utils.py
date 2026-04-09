@@ -6,7 +6,8 @@ import os
 
 import numpy as np
 import torch
-from tqdm import tqdm
+# from tqdm import tqdm
+def tqdm(iterable, *args, **kwargs): return iterable
 
 
 def train_single_epoch(model, optimizer, scheduler, data_iter,

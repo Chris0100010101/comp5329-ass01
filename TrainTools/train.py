@@ -9,7 +9,8 @@ Usage:
 import argparse
 import os
 
-import ujson as json
+# import ujson as json
+import json
 import torch
 
 from Data import SQuADDataset, load_train_dev_eval, load_word_char_mats, make_loader, sanity_check_cache
