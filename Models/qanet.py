@@ -90,7 +90,8 @@ class QANet(nn.Module):
 
 
         ### changed
-        p1_logits, p2_logits = self.out(M1, M2, M3, cmask)
-        p1 = F.log_softmax(p1_logits, dim=-1)
-        p2 = F.log_softmax(p2_logits, dim=-1)
+        p1, p2 = self.out(M1, M2, M3, cmask)
+        ### changed - commented out F.log_softmax calc since already done in heads.py
+        # p1 = F.log_softmax(p1_logits, dim=-1)
+        # p2 = F.log_softmax(p2_logits, dim=-1)
         return p1, p2

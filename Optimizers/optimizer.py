@@ -13,7 +13,7 @@ from Optimizers.sgd_momentum import SGDMomentum
 def adam(params, args):
     return Adam(
         params=params,
-        lr=args.learning_rate,    ### Changed
+        lr=1.0,    ### Changed - reverted back to 1.0, following the NOTE above.
         # lr=args.learning_rate,
         betas=(args.beta1, args.beta2),
         eps=getattr(args, "eps", 1e-8),

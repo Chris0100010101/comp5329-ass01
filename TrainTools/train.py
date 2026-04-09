@@ -21,7 +21,7 @@ from Schedulers import schedulers
 from Tools import set_seed
 from EvaluateTools.eval_utils import run_eval
 from TrainTools.train_utils import train_single_epoch, save_checkpoint
-
+import matplotlib.pyplot as plt
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -222,6 +222,38 @@ def train(
 
     print(f"Training finished.  Best F1: {best_f1:.4f}  Best EM: {best_em:.4f}")
 
+
+    steps     = [h["step"]       for h in history]
+    train_loss = [h["train_loss"] for h in history]
+    dev_loss   = [h["dev_loss"]   for h in history]
+    train_f1   = [h["train_f1"]   for h in history]
+    dev_f1     = [h["dev_f1"]     for h in history]
+    train_em   = [h["train_em"]   for h in history]
+    dev_em     = [h["dev_em"]     for h in history]
+
+    fig, axes = plt.subplots(1, 3, figsize=(15, 4))
+
+    axes[0].plot(steps, train_loss, label="Train")
+    axes[0].plot(steps, dev_loss,   label="Dev")
+    axes[0].set_title("Loss")
+    axes[0].set_xlabel("Step")
+    axes[0].legend()
+
+    axes[1].plot(steps, train_f1, label="Train")
+    axes[1].plot(steps, dev_f1,   label="Dev")
+    axes[1].set_title("F1")
+    axes[1].set_xlabel("Step")
+    axes[1].legend()
+
+    axes[2].plot(steps, train_em, label="Train")
+    axes[2].plot(steps, dev_em,   label="Dev")
+    axes[2].set_title("EM")
+    axes[2].set_xlabel("Step")
+    axes[2].legend()
+
+    plt.tight_layout()
+    plt.savefig(os.path.join(log_dir, "training_curves.png"), dpi=150)
+    plt.show()
     return {
         "best_f1":   best_f1,
         "best_em":   best_em,

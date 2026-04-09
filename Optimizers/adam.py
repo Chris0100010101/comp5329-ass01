@@ -50,7 +50,8 @@ class Adam(Optimizer):
 
                 # Weight decay (Decoupled Weight Decay style)
                 if wd != 0.0:
-                    grad = grad.add(p, alpha=-wd)
+                    ### removed negative sign for wd
+                    grad = grad.add(p, alpha=wd)
 
                 state = self.state[p]
 ### changed
