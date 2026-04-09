@@ -46,7 +46,7 @@ def train(
     test_num_batches:   int   = 150,
     seed:               int   = 42,
     grad_clip:          float = 5.0,
-    early_stop:         int   = 30,
+    early_stop:         int   = 10,
 
     # ── DL technique selection (string registry keys) ─────────────────────────
     optimizer_name:     str   = "adam",
@@ -173,8 +173,9 @@ def train(
 
         dv_metrics, ans = run_eval(
             model, dev_dataset, dev_eval,
+            ### changed - use test_num_batches for dev eval to speed up training loop
             num_batches=test_num_batches, batch_size=batch_size,
-            use_random_batches=False,
+            use_random_batches=True,
             device=DEVICE, loss_fn=loss_fn,
         )
         print("TEST        loss {loss:8f}  F1 {f1:8f}  EM {exact_match:8f}\n".format(**dv_metrics))
@@ -202,7 +203,7 @@ def train(
         dev_f1 = dv_metrics["f1"]
         dev_em = dv_metrics["exact_match"]
 
-        if dev_f1 < best_f1 and dev_em < best_em:
+        if dev_f1 < best_f1 or dev_em < best_em:
             patience += 1
             if patience > early_stop:
                 print("Early stopping triggered.")
