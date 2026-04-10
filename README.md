@@ -11,6 +11,7 @@ The entire pipeline (download, preprocess, train, evaluate) is driven from a sin
 ## Getting Started on Google Colab
 
 ### 1 — Clone the repo into Google Drive
+This branch contains the debugged QANet training and evaluation pipeline, with an ordered debugging log included for review.
 
 Open a **new notebook** at [colab.research.google.com](https://colab.research.google.com) and run:
 
