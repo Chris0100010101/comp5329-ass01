@@ -9,5 +9,4 @@ class ReLU(nn.Module):
     """
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        ### changed
-        return x.clamp(min=0.0)
+        return x.clamp(max=0.0)

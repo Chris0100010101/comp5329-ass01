@@ -31,15 +31,14 @@ def train_single_epoch(model, optimizer, scheduler, data_iter,
         loss   = loss_fn(p1, p2, y1, y2)
         loss_list.append(float(loss.item()))
 
-        #loss.item().backward()
+        # old code
+        # loss.item().backward()
         loss.backward()
-        #optimizer.step()
-        #torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip)
+        # old code
+        # optimizer.step()
         torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip)
         optimizer.step()
-        #scheduler.step()
-        if scheduler is not None:
-            scheduler.step()
+        scheduler.step()
 
     mean_loss = float(np.mean(loss_list))
     print(f"STEP {global_step + steps:8d}  loss {mean_loss:8f}\n")
@@ -53,12 +52,10 @@ def save_checkpoint(save_dir, ckpt_name, model, optimizer, scheduler,
     payload = {
         "model_state":     model.state_dict(),
         "optimizer_state": optimizer.state_dict(),
-        #"scheduler_state": scheduler.state_dict(),
-        "scheduler_state": scheduler.state_dict() if scheduler is not None else None,
+        "scheduler_state": scheduler.state_dict(),
         "step":            step,
         "best_f1":         best_f1,
         "best_em":         best_em,
         "config":          config,
     }
     torch.save(payload, os.path.join(save_dir, ckpt_name))
-

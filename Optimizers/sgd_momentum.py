@@ -38,21 +38,27 @@ class SGDMomentum(Optimizer):
 
                 grad = p.grad
 
-                # Weight decay
+                # old code
+                # # Weight decay
+                # if wd != 0.0:
+                #     grad = grad.add(p, alpha=wd)
                 if wd != 0.0:
                     grad = grad.add(p, alpha=wd)
 
                 state = self.state[p]
 
-                # Initialise velocity buffer on first step
+                # old code
+                # # Initialise velocity buffer on first step
+                # if "velocity" not in state:
+                #     state["vel"] = torch.zeros_like(p)
                 if "velocity" not in state:
-                    ### changed - "vel" to "velocity" for key match
                     state["velocity"] = torch.zeros_like(p)
 
                 v = state["velocity"]
 
-                # v = momentum * v + grad
-                ### changed - .sub_() to .add_(), following docstring formula.
+                # old code
+                # # v = momentum * v + grad
+                # v.mul_(mu).sub_(grad)
                 v.mul_(mu).add_(grad)
 
                 p.add_(v, alpha=-lr)

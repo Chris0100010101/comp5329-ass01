@@ -1,7 +1,7 @@
 import math
+
 import torch
 from torch.optim import Optimizer
-### changed
 
 
 class Adam(Optimizer):
@@ -9,9 +9,9 @@ class Adam(Optimizer):
 
     Update rule:
         m = beta1 * m + (1 - beta1) * grad
-        v = beta2 * v + (1 - beta2) * grad^2  <-- Updated
-        m_hat = m / (1 - beta1^t)             <-- Updated
-        v_hat = v / (1 - beta2^t)             <-- Updated
+        v = beta2 * v + (1 - beta2) * grad^2
+        m_hat = m / (1 - beta1^t)
+        v_hat = v / (1 - beta2^t)
         p = p - lr * m_hat / (sqrt(v_hat) + eps)
     """
 
@@ -48,41 +48,42 @@ class Adam(Optimizer):
 
                 grad = p.grad
 
-                # Weight decay (Decoupled Weight Decay style)
+                # old code
+                # # Weight decay
+                # if wd != 0.0:
+                #     grad = grad.add(p, alpha=-wd)
                 if wd != 0.0:
-                    ### removed negative sign for wd
                     grad = grad.add(p, alpha=wd)
 
                 state = self.state[p]
-### changed
+
                 # Initialise moment buffers and step counter on first step
                 if len(state) == 0:
                     state["step"] = 0
-                    state["m"] = torch.zeros_like(p)       # 1st moment
-                    state["v"] = torch.zeros_like(p)       # 2nd moment
+                    state["exp_avg"] = torch.zeros_like(p)  # 1st moment (mean)
+                    state["exp_avg_sq"] = torch.zeros_like(p)  # 2nd moment (variance)
 
-                m, v = state["m"], state["v"]
+                # old code
+                # m, v = state["m"], state["v"]
+                m, v = state["exp_avg"], state["exp_avg_sq"]
                 state["step"] += 1
                 t = state["step"]
 
-                
-                
+                # Update biased moment estimates
                 m.mul_(beta1).add_(grad, alpha=1.0 - beta1)
-                
-                # addcmul_ (grad * grad)
-                # v = v * beta2 + (1 - beta2) * grad^2
+                # old code
+                # v.mul_(beta2).add_(grad, alpha=1.0 - beta2)
                 v.mul_(beta2).addcmul_(grad, grad, value=1.0 - beta2)
 
-                
-                # 1.0 - beta * t
-                # 1.0 - beta ** t 
+                # Bias correction
+                # old code
+                # bias_correction1 = 1.0 - beta1 * t
+                # bias_correction2 = 1.0 - beta2 * t
                 bias_correction1 = 1.0 - beta1 ** t
                 bias_correction2 = 1.0 - beta2 ** t
-                
                 m_hat = m / bias_correction1
                 v_hat = v / bias_correction2
 
-                # Parameter update
                 p.addcdiv_(m_hat, v_hat.sqrt().add_(eps), value=-lr)
 
         return loss

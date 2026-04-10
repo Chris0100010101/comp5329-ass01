@@ -1,11 +1,13 @@
 from Schedulers.cosine_scheduler import CosineAnnealingLR
 from Schedulers.lambda_scheduler import LambdaLR
 from Schedulers.step_scheduler import StepLR
-from Schedulers.warmup_lambda_scheduler import WarmupLambdaLR
-from functools import partial
+
+
 # ── Scheduler factories ──────────────────────────────────────────────────────
-def _constant_lr(step, learning_rate):
-    return learning_rate
+
+def _constant_lr_factor(_):
+    return 1.0
+
 def cosine_scheduler(optimizer, args):
     """Cosine annealing over the full training run."""
     return CosineAnnealingLR(
@@ -24,22 +26,31 @@ def step_scheduler(optimizer, args):
 
 
 def lambda_scheduler(optimizer, args):
-    fn = partial(_constant_lr, learning_rate=args.learning_rate)
-    return LambdaLR(optimizer, lr_lambda=fn)
+    """LambdaLR with a constant factor of 1.0 — learning rate stays fixed."""
+    # old code
+    # return LambdaLR(optimizer, lr_lambda=lambda _: 1.0)
+    return LambdaLR(optimizer, lr_lambda=_constant_lr_factor)
 
 
-def warmup_lambda_scheduler(optimizer, args):
-    return WarmupLambdaLR(
-        optimizer,
-        learning_rate=args.learning_rate,
-        warmup_steps=getattr(args, "warmup_steps", 1000),
-    )
+def none_scheduler(optimizer, args):
+    """Explicit no-op scheduler alias used by the notebook config."""
+    # old code
+    # no explicit "none" scheduler existed in the registry
+    # return LambdaLR(optimizer, lr_lambda=lambda _: 1.0)
+    return LambdaLR(optimizer, lr_lambda=_constant_lr_factor)
+
 
 # ── Registry ─────────────────────────────────────────────────────────────────
 
+# old code
+# schedulers = {
+#     "cosine":  cosine_scheduler,
+#     "step":    step_scheduler,
+#     "lambda":  lambda_scheduler,
+# }
 schedulers = {
     "cosine":  cosine_scheduler,
     "step":    step_scheduler,
     "lambda":  lambda_scheduler,
-    "warmup_lambda": warmup_lambda_scheduler,
+    "none":    none_scheduler,
 }

@@ -1,5 +1,8 @@
 import numpy as np
-import ujson as json
+try:
+    import ujson as json
+except ModuleNotFoundError:
+    import json
 
 
 def load_word_char_mats(args):

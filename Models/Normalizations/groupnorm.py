@@ -31,8 +31,9 @@ class GroupNorm(nn.Module):
         B, C = x.shape[:2]
         spatial = x.shape[2:]  # e.g. (L,) or (H, W)
 
-        # Reshape to [B, G, C//G, *spatial] to isolate groups
-        ### changed - order
+        # old code
+        # # Reshape to [B, G, C//G, *spatial] to isolate groups
+        # x = x.view(B, C // self.G, self.G, *spatial)
         x = x.view(B, self.G, C // self.G, *spatial)
 
         # Normalize over (C//G, *spatial) dims, i.e. everything from dim=2 onward

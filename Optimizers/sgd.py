@@ -34,9 +34,11 @@ class SGD(Optimizer):
 
                 grad = p.grad
 
-                # Weight decay: equivalent to L2 regularisation
+                # old code
+                # # Weight decay: equivalent to L2 regularisation
+                # if wd != 0.0:
+                #     grad = grad.add(p, alpha=-wd)
                 if wd != 0.0:
-                    ### removed negative sign for wd
                     grad = grad.add(p, alpha=wd)
 
                 p.add_(grad, alpha=-lr)
