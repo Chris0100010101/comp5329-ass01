@@ -15,7 +15,10 @@ import argparse
 import os
 
 import torch
-import ujson as json
+try:
+    import ujson as json
+except ModuleNotFoundError:
+    import json
 
 from Data import SQuADDataset, load_dev_eval, load_word_char_mats
 from Losses import losses
@@ -115,9 +118,13 @@ def evaluate(
     dev_dataset = SQuADDataset(dev_npz)
 
     ckpt_path = os.path.join(save_dir, ckpt_name)
-    ckpt = torch.load(ckpt_path, map_location=DEVICE)
-    #model.load_state_dict(ckpt["model"])
-    model.load_state_dict(ckpt["model_state"]) #Correct one
+    # old code
+    # ckpt = torch.load(ckpt_path, map_location=DEVICE)
+    ckpt = torch.load(ckpt_path, map_location=DEVICE, weights_only=False)
+    # old code
+    # model.load_state_dict(ckpt["model"])
+    model_state = ckpt["model"] if "model" in ckpt else ckpt["model_state"]
+    model.load_state_dict(model_state)
 
     metrics, ans = run_eval(
         model, dev_dataset, dev_eval,

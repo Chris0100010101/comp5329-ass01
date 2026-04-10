@@ -26,7 +26,10 @@ import re
 from collections import Counter
 
 import numpy as np
-import ujson as json
+try:
+    import ujson as json
+except ModuleNotFoundError:
+    import json
 from tqdm import tqdm
 
 

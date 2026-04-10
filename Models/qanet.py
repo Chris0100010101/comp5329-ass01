@@ -8,7 +8,7 @@ from .embedding import Embedding
 from .encoder import EncoderBlock
 from .attention import CQAttention
 from .heads import Pointer
-import torch.nn.functional as F
+
 
 class QANet(nn.Module):
     """
@@ -40,7 +40,7 @@ class QANet(nn.Module):
         )
         self.word_emb = nn.Embedding.from_pretrained(
             torch.tensor(word_mat, dtype=torch.float32),
-            freeze=True
+            freeze=False
         )
 
         self.emb = Embedding(d_word, d_char, dropout, dropout_char, init_name=init_name, act_name=act_name)
@@ -62,7 +62,9 @@ class QANet(nn.Module):
         cmask = (Cwid == 0)  # True means PAD
         qmask = (Qwid == 0)
 
-        #Cw, Cc = self.char_emb(Cwid), self.word_emb(Ccid)
+        # old code
+        # Cw, Cc = self.char_emb(Cwid), self.word_emb(Ccid)
+        # Qw, Qc = self.word_emb(Qwid), self.char_emb(Qcid)
         Cw, Cc = self.word_emb(Cwid), self.char_emb(Ccid)
         Qw, Qc = self.word_emb(Qwid), self.char_emb(Qcid)
 
@@ -73,7 +75,8 @@ class QANet(nn.Module):
         Ce = self.c_emb_enc(C, cmask)
         Qe = self.q_emb_enc(Q, qmask)
 
-        #X = self.cq_att(Ce, Qe, qmask, cmask)
+        # old code
+        # X = self.cq_att(Ce, Qe, qmask, cmask)
         X = self.cq_att(Ce, Qe, cmask, qmask)
 
         M1 = self.cq_resizer(X)
@@ -88,10 +91,5 @@ class QANet(nn.Module):
         for enc in self.model_enc_blks:
             M3 = enc(M3, cmask)
 
-
-        ### changed
         p1, p2 = self.out(M1, M2, M3, cmask)
-        ### changed - commented out F.log_softmax calc since already done in heads.py
-        # p1 = F.log_softmax(p1_logits, dim=-1)
-        # p2 = F.log_softmax(p2_logits, dim=-1)
         return p1, p2

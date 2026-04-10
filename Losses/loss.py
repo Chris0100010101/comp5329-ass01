@@ -4,7 +4,8 @@ import torch.nn.functional as F
 def qa_nll_loss(p1, p2, y1, y2):
     """Standard QA span loss.
     Expects p1/p2 to be log-probabilities (output of log_softmax)."""
-    # changed
+    # old code
+    # return 0.5 * (F.nll_loss(y1, p1) + F.nll_loss(p2, y2))
     return 0.5 * (F.nll_loss(p1, y1) + F.nll_loss(p2, y2))
 
 

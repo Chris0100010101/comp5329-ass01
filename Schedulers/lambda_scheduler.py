@@ -20,5 +20,6 @@ class LambdaLR(LRScheduler):
     def get_lr(self):
         t = self.last_epoch
         factor = self.lr_lambda(t)
-        ### changed
+        # old code
+        # return [base_lr + factor for base_lr in self.base_lrs]
         return [base_lr * factor for base_lr in self.base_lrs]

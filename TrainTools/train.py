@@ -9,7 +9,10 @@ Usage:
 import argparse
 import os
 
-import ujson as json
+try:
+    import ujson as json
+except ModuleNotFoundError:
+    import json
 import torch
 
 from Data import SQuADDataset, load_train_dev_eval, load_word_char_mats, make_loader, sanity_check_cache
@@ -21,7 +24,7 @@ from Schedulers import schedulers
 from Tools import set_seed
 from EvaluateTools.eval_utils import run_eval
 from TrainTools.train_utils import train_single_epoch, save_checkpoint
-import matplotlib.pyplot as plt
+
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -104,7 +107,8 @@ def train(
     os.makedirs(save_dir, exist_ok=True)
 
     # Internal namespace required by QANet.__init__ and data utilities
-    #args = argparse.Namespace({k: v for k, v in locals().items()})
+    # old code
+    # args = argparse.Namespace({k: v for k, v in locals().items()})
     args = argparse.Namespace(**{k: v for k, v in locals().items()})
 
     with open(os.path.join(save_dir, "run_config.json"), "w") as f:
@@ -132,11 +136,7 @@ def train(
     # Validate and select DL components from registries
     if optimizer_name not in optimizers:
         raise ValueError(f"Unknown optimizer '{optimizer_name}'. Available: {list(optimizers.keys())}")
-    #We add the option None and "none" to allow for no scheduler.
-    valid_schedulers = list(schedulers.keys()) + ["none", None]
-    #if scheduler_name not in schedulers:
-    #    raise ValueError(f"Unknown scheduler '{scheduler_name}'. Available: {list(schedulers.keys())}")
-    if scheduler_name not in valid_schedulers:
+    if scheduler_name not in schedulers:
         raise ValueError(f"Unknown scheduler '{scheduler_name}'. Available: {list(schedulers.keys())}")
     if loss_name not in losses:
         raise ValueError(f"Unknown loss '{loss_name}'. Available: {list(losses.keys())}")
@@ -145,8 +145,7 @@ def train(
 
     params    = (p for p in model.parameters() if p.requires_grad)
     optimizer = optimizers[optimizer_name](params, args)
-    #scheduler = schedulers[scheduler_name](optimizer, args)
-    scheduler = None if scheduler_name in ["none", None] else schedulers[scheduler_name](optimizer, args)
+    scheduler = schedulers[scheduler_name](optimizer, args)
     loss_fn   = losses[loss_name]
 
     best_f1  = 0.0
@@ -173,20 +172,13 @@ def train(
 
         dv_metrics, ans = run_eval(
             model, dev_dataset, dev_eval,
-            ### changed - use test_num_batches for dev eval to speed up training loop
             num_batches=test_num_batches, batch_size=batch_size,
-            use_random_batches=True,
+            use_random_batches=False,
             device=DEVICE, loss_fn=loss_fn,
         )
         print("TEST        loss {loss:8f}  F1 {f1:8f}  EM {exact_match:8f}\n".format(**dv_metrics))
 
-        #current_lr = scheduler.get_last_lr()
-
-        if scheduler is not None:
-            current_lr = scheduler.get_last_lr()
-        else:
-            current_lr = [optimizer.param_groups[0]["lr"]]
-
+        current_lr = scheduler.get_last_lr()
         print("Learning rate:", current_lr)
 
         history.append({
@@ -203,7 +195,7 @@ def train(
         dev_f1 = dv_metrics["f1"]
         dev_em = dv_metrics["exact_match"]
 
-        if dev_f1 < best_f1 or dev_em < best_em:
+        if dev_f1 < best_f1 and dev_em < best_em:
             patience += 1
             if patience > early_stop:
                 print("Early stopping triggered.")
@@ -223,38 +215,6 @@ def train(
 
     print(f"Training finished.  Best F1: {best_f1:.4f}  Best EM: {best_em:.4f}")
 
-
-    steps     = [h["step"]       for h in history]
-    train_loss = [h["train_loss"] for h in history]
-    dev_loss   = [h["dev_loss"]   for h in history]
-    train_f1   = [h["train_f1"]   for h in history]
-    dev_f1     = [h["dev_f1"]     for h in history]
-    train_em   = [h["train_em"]   for h in history]
-    dev_em     = [h["dev_em"]     for h in history]
-
-    fig, axes = plt.subplots(1, 3, figsize=(15, 4))
-
-    axes[0].plot(steps, train_loss, label="Train")
-    axes[0].plot(steps, dev_loss,   label="Dev")
-    axes[0].set_title("Loss")
-    axes[0].set_xlabel("Step")
-    axes[0].legend()
-
-    axes[1].plot(steps, train_f1, label="Train")
-    axes[1].plot(steps, dev_f1,   label="Dev")
-    axes[1].set_title("F1")
-    axes[1].set_xlabel("Step")
-    axes[1].legend()
-
-    axes[2].plot(steps, train_em, label="Train")
-    axes[2].plot(steps, dev_em,   label="Dev")
-    axes[2].set_title("EM")
-    axes[2].set_xlabel("Step")
-    axes[2].legend()
-
-    plt.tight_layout()
-    plt.savefig(os.path.join(log_dir, "training_curves.png"), dpi=150)
-    plt.show()
     return {
         "best_f1":   best_f1,
         "best_em":   best_em,
