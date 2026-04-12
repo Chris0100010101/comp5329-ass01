@@ -2,7 +2,7 @@ from functools import partial
 from torch.optim.lr_scheduler import LRScheduler
 
 
-def _warmup_lr_lambda(step, learning_rate, warmup_steps):
+def _warmup_lr_lambda(step, learning_rate, warmup_steps = 1000):
     if step < warmup_steps:
         return learning_rate * step / warmup_steps
     return learning_rate
